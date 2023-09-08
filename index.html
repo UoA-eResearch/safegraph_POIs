@@ -101,10 +101,10 @@
             "Δ POIs open": "delta",
             "Top category diversity, pre-pandemic": "diversity_pre_pandemic_top_category",
             "Top category diversity, post-pandemic": "diversity_post_pandemic_top_category",
-            "Δ top category diversity": "Δ diversity top category",
+            "Δ top category diversity": "Δ top category diversity",
             "Sub category diversity, pre-pandemic": "diversity_pre_pandemic_sub_category",
             "Sub category diversity, post-pandemic": "diversity_post_pandemic_sub_category",
-            "Δ sub category diversity": "Δ diversity sub category"
+            "Δ sub category diversity": "Δ sub category diversity"
         }
 
         Papa.parse("by_city_geocoded.csv", {
@@ -116,10 +116,10 @@
                 console.log(results);
                 window.data = results.data;
                 for (var d of results.data) {
-                    d["Δ diversity top category"] = d.diversity_post_pandemic_top_category - d.diversity_pre_pandemic_top_category;
-                    d["Δ diversity sub category"] = d.diversity_post_pandemic_sub_category - d.diversity_pre_pandemic_sub_category;
+                    d["Δ top category diversity"] = d.diversity_post_pandemic_top_category - d.diversity_pre_pandemic_top_category;
+                    d["Δ sub category diversity"] = d.diversity_post_pandemic_sub_category - d.diversity_pre_pandemic_sub_category;
                 }
-                var key = "Δ diversity top category"
+                var key = "Δ top category diversity"
                 var min = Math.min(...results.data.map(d => d[key]))
                 var max = Math.max(...results.data.map(d => d[key]))
                 console.log(min, max)

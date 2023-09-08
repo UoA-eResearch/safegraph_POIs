@@ -186,7 +186,11 @@
                         var d = layer.options.data;
                         if (d) {
                             layer.setStyle({color: cmap(d[key])});
-                            layer.bindTooltip(`${d.city}, ${d.country} : ${d[key].toFixed(4)}`)
+                            var v = d[key]
+                            if (!Number.isInteger(v)) {
+                                v = v.toFixed(4)
+                            }
+                            layer.bindTooltip(`${d.city}, ${d.country} : ${v}`)
                         }
                     });
                 })

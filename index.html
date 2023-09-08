@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Safegraph POI diversity change by city</title>
+    <title>Safegraph retail POI diversity change by city</title>
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,7 +72,7 @@
 </head>
 
 <body>
-    <h1 id="title">Safegraph POI diversity change by city</h1>
+    <h1 id="title">Safegraph retail POI diversity change by city</h1>
     <div id="map"></div>
     <script>
 
@@ -96,15 +96,15 @@
         L.control.layers(baseMaps).addTo(map);
 
         var lookup = {
-            "# retail POIs open pre-pandemic": "n_open_pre_pandemic",
-            "# retail POIs open post-pandemic": "n_open_post_pandemic",
-            "Δ retail POIs open": "delta",
+            "# POIs open pre-pandemic": "n_open_pre_pandemic",
+            "# POIs open post-pandemic": "n_open_post_pandemic",
+            "Δ POIs open": "delta",
             "Top category diversity, pre-pandemic": "diversity_pre_pandemic_top_category",
             "Top category diversity, post-pandemic": "diversity_post_pandemic_top_category",
-            "Δ diversity top category": "Δ diversity top category",
+            "Δ top category diversity": "Δ diversity top category",
             "Sub category diversity, pre-pandemic": "diversity_pre_pandemic_sub_category",
             "Sub category diversity, post-pandemic": "diversity_post_pandemic_sub_category",
-            "Δ diversity sub category": "Δ diversity sub category"
+            "Δ sub category diversity": "Δ diversity sub category"
         }
 
         Papa.parse("by_city_geocoded.csv", {

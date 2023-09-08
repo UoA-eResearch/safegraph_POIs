@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Safegraph POI diversity change by city</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-providers@1.3.0/leaflet-providers.js"></script>
+    <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"
+        integrity="sha512-zInFF17qBFVvvvFpIfeBzo7Tj7+rQxLeTJDmbxjBz5/zIr89YVbTNelNhdTT+/DCrxoVzBeUPVFJsczKbB7sew=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body,
+        html,
+        #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #title {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            z-index: 1000;
+            width: 500px;
+            text-align: center;
+            color: white;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.8);
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+            text-shadow: 2px 2px #000000;
+            font-weight: normal;
+        }
+        
+        .legend {
+            background-color: rgba(0, 0, 0, 0.8);
+            line-height: 18px;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+            clear: left;
+            border-radius: 50%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1 id="title">Safegraph POI diversity change by city</h1>
+    <div id="map"></div>
+    <script>
+
+        var map = L.map('map', {
+            center: [15, 41],
+            zoom: 3,
+            worldCopyJump: true
+        });
+
+        var baseMaps = {
+            "OSM": L.tileLayer.provider("OpenStreetMap.Mapnik"),
+            "CartoDB Positron": L.tileLayer.provider('CartoDB.Positron').addTo(map),
+            "CartoDB Dark Matter": L.tileLayer.provider("CartoDB.DarkMatter"),
+            "ESRI WorldImagery": L.tileLayer.provider("Esri.WorldImagery"),
+            "Google Hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            })
+        }
+
+        L.control.layers(baseMaps).addTo(map);
+
+        Papa.parse("by_city_geocoded.csv", {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+                console.log(results);
+                window.data = results.data;
+                for (var d of results.data) {
+                    d["Δ diversity top category"] = d.diversity_post_pandemic_top_category - d.diversity_pre_pandemic_top_category;
+                    d["Δ diversity sub category"] = d.diversity_post_pandemic_sub_category - d.diversity_pre_pandemic_sub_category;
+                }
+                var key = "Δ diversity top category"
+                var min = Math.min(...results.data.map(d => d[key]))
+                var max = Math.max(...results.data.map(d => d[key]))
+                console.log(min, max)
+                var colors = [360,270,180,90].map(hue => chroma.hsv(hue,1,1))
+                var cmap = chroma.scale(colors).mode("hsv").domain([min, max])
+                var features = [];
+                for (var d of results.data) {
+                    L.circleMarker([d.lat, d.lng], {
+                        color: cmap(d[key])
+                    }).bindTooltip(`${d.city}, ${d.country} : ${d[key].toFixed(4)}`).addTo(map)
+                }
+                
+                var legend = L.control({ position: 'bottomright' });
+
+                legend.onAdd = function (map) {
+                    var div = L.DomUtil.create('div', 'info legend');
+                    div.innerHTML = "<b>Legend</b><br>";
+                    for (var i = min; i < max; i += (max - min) / 10) {
+                        div.innerHTML += `<i style="background: ${cmap(i)}"></i> ${i.toFixed(4)}<br>`;
+                    }
+                    return div;
+                };
+
+                legend.addTo(map);
+
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
